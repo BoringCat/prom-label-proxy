@@ -69,7 +69,7 @@ func checkQueryHandler(body, key string, values ...string) http.Handler {
 		}
 		// Verify that the client provides the parameter only once.
 		if len(kvs[key]) != len(values) {
-			http.Error(w, fmt.Sprintf("expected %d values of parameter %q, got %d", len(values), key, len(kvs[key])), http.StatusInternalServerError)
+			http.Error(w, fmt.Sprintf("checkQueryHandler: expected %d values of parameter %q, got %d", len(values), key, len(kvs[key])), http.StatusInternalServerError)
 			return
 		}
 		sort.Strings(values)
@@ -105,14 +105,14 @@ func checkFormHandler(key string, values ...string) http.Handler {
 		kvs := req.PostForm
 		// Verify that the client provides the parameter only once.
 		if len(kvs[key]) != len(values) {
-			http.Error(w, fmt.Sprintf("expected %d values of parameter %q, got %d", len(values), key, len(kvs[key])), http.StatusInternalServerError)
+			http.Error(w, fmt.Sprintf("checkFormHandler: expected %d values of parameter %q, got %d", len(values), key, len(kvs[key])), http.StatusInternalServerError)
 			return
 		}
 		sort.Strings(values)
 		sort.Strings(kvs[key])
 		for i := range values {
 			if kvs[key][i] != values[i] {
-				http.Error(w, fmt.Sprintf("expected parameter %q with value %q, got %q", key, values[i], kvs[key][i]), http.StatusInternalServerError)
+				http.Error(w, fmt.Sprintf("expected parameter %q @ %d with value %q, got %q", key, i, values[i], kvs[key][i]), http.StatusInternalServerError)
 				return
 			}
 		}
@@ -628,12 +628,23 @@ func TestQuery(t *testing.T) {
 				if tc.expPromQueryBody != "" {
 					expBody = url.Values(map[string][]string{"query": {tc.expPromQueryBody}}).Encode()
 				}
-				m := newMockUpstream(
-					checkParameterAbsent(
-						proxyLabel,
-						checkQueryHandler(expBody, queryParam, tc.expPromQuery),
-					),
-				)
+				var m *mockUpstream
+				if tc.method == http.MethodPost {
+					m = newMockUpstream(
+						checkParameterAbsent(
+							proxyLabel,
+							checkFormHandler(queryParam, tc.expPromQueryBody),
+						),
+					)
+
+				} else {
+					m = newMockUpstream(
+						checkParameterAbsent(
+							proxyLabel,
+							checkQueryHandler(expBody, queryParam, tc.expPromQuery),
+						),
+					)
+				}
 				defer m.Close()
 				var opts []Option
 				if tc.errorOnReplace {
