@@ -33,7 +33,7 @@ the [Go](https://golang.org/) 1.15+ [toolchain](https://github.com/golang/tools)
 `prom-label-proxy` can be downloaded and built by running:
 
 ```bash
-go get github.com/prometheus-community/prom-label-proxy
+go get github.com/boringcat/prom-label-proxy
 ```
 
 ## How does this project work?
@@ -44,7 +44,7 @@ This application proxies the following endpoints and it ensures that a particula
 * `/api/v1/query_exemplars` for GET and POST methods (Prometheus/Thanos)
 * `/api/v1/query` for GET and POST methods (Prometheus/Thanos)
 * `/api/v1/query_range` for GET and POST methods (Prometheus/Thanos)
-* `/api/v1/series` for GET method (Prometheus/Thanos)
+* `/api/v1/series` for GET and POST method (Prometheus/Thanos)
 * `/api/v1/rules` for GET method (Prometheus/Thanos)
 * `/api/v1/alerts` for GET method (Prometheus/Thanos)
 * `/api/v2/silences` for GET and POST methods (Alertmanager)
