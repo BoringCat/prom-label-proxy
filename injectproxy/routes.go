@@ -143,7 +143,7 @@ func NewRoutes(upstream *url.URL, label string, opts ...Option) (*routes, error)
 		mux.Handle("/api/v1/query_range", r.enforceLabel(enforceMethods(r.query, "GET", "POST"))),
 		mux.Handle("/api/v1/alerts", r.enforceLabel(enforceMethods(r.passthrough, "GET"))),
 		mux.Handle("/api/v1/rules", r.enforceLabel(enforceMethods(r.passthrough, "GET"))),
-		mux.Handle("/api/v1/series", r.enforceLabel(enforceMethods(r.matcher, "GET"))),
+		mux.Handle("/api/v1/series", r.enforceLabel(enforceMethods(r.matcher, "GET", "POST"))),
 		mux.Handle("/api/v1/query_exemplars", r.enforceLabel(enforceMethods(r.query, "GET", "POST"))),
 	)
 
@@ -223,6 +223,7 @@ func (r *routes) enforceLabel(h http.HandlerFunc) http.Handler {
 				_ = req.Body.Close()
 				req.Body = ioutil.NopCloser(strings.NewReader(newBody))
 				req.ContentLength = int64(len(newBody))
+				req.URL.RawQuery = ""
 			}
 		}
 
@@ -317,6 +318,7 @@ func (r *routes) query(w http.ResponseWriter, req *http.Request) {
 		_ = req.Body.Close()
 		req.Body = ioutil.NopCloser(strings.NewReader(q))
 		req.ContentLength = int64(len(q))
+		req.URL.RawQuery = ""
 	}
 
 	// If no query was found, return early.
@@ -374,6 +376,7 @@ func (r *routes) matcher(w http.ResponseWriter, req *http.Request) {
 		newBody := q.Encode()
 		req.Body = ioutil.NopCloser(strings.NewReader(newBody))
 		req.ContentLength = int64(len(newBody))
+		req.URL.RawQuery = ""
 	}
 	r.handler.ServeHTTP(w, req)
 }

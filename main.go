@@ -24,7 +24,7 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/prometheus-community/prom-label-proxy/injectproxy"
+	"github.com/boringcat/prom-label-proxy/injectproxy"
 )
 
 func main() {
