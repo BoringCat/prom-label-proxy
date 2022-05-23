@@ -2,5 +2,4 @@ prom-label-proxy
 
 .idea
 .envrc
-build.sh
-push.sh
+.docker/
